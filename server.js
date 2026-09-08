@@ -6,14 +6,17 @@ const config = require('./config');
 const app = express();
 
 const port = config.port;
-const requiredEnvVars = ['PORT'];
+const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'PORT'];
+const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
 
 requiredEnvVars.forEach((key) => {
-  if (!process.env[key]) {
-    console.error(`Missing required environment variable: ${key}`);
-    process.exit(1);
-  }
+  console.log(`${key}: ${process.env[key] ? 'SET' : 'MISSING'}`);
 });
+
+if (missingEnvVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  process.exit(1);
+}
 
 app.use(express.json());
 
@@ -33,6 +36,7 @@ if (!config.database_url) {
 }
 
 app.listen(port, () => {
+  console.log(`Node.js: ${process.version}`);
   console.log(`Server running on port ${port}`);
   console.log(`Environment: ${config.node_env}`);
 });
